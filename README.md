@@ -1,70 +1,100 @@
-# Model-Agnostic Meta-Learning
+# Model-Agnostic Meta-Learning (MAML) - Minimal Reproduction
 
-This repo contains code accompaning the paper, 	[Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (Finn et al., ICML 2017)](https://arxiv.org/abs/1703.03400). It includes code for running the few-shot reinforcement learning experiments. 
+This repository contains a minimal working implementation of the MAML algorithm from the paper [Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (Finn et al., ICML 2017)](https://arxiv.org/abs/1703.03400). The implementation focuses specifically on the point navigation environment, which is one of the original few-shot reinforcement learning experiments from the paper.
 
-For the experiments in the supervised domain, see  [this codebase](https://github.com/cbfinn/maml).
+## Environment
 
+We are using the Point Navigation environment from the original paper. In this environment:
+- The agent controls a 2D point mass that must navigate to a target position
+- Each task has a different goal position that the agent must reach
+- MAML learns a policy that can quickly adapt to new goal positions with minimal gradient updates
 
-### Dependencies
-This code is based off of the rllab code repository and can be installed in the same way (see below). This codebase is not necessarily backwards compatible with rllab.
+## Results
 
-The MAML code uses the TensorFlow rllab version, so be sure to install TensorFlow v1.0+.
+The results of running the meta-reinforcement learning algorithm on the point navigation environment are visualized in the `maml_point_results.png` image. This shows the learning curves demonstrating how a MAML-trained policy can quickly adapt to new navigation goals compared to training from scratch or standard pre-training.
 
-### Usage
-Scripts for running the experiments found in the paper are located in `maml_examples/`.
+To visualize your results after running the training, use:
+```bash
+python plot_maml_results.py
+```
 
-The pointmass environment is located in `maml_examples/` whereas the MuJoCo environments are located in `rllab/envs/mujoco/`.
+This script loads the training progress from the CSV file generated during training and creates plots showing:
+1. Pre-adaptation vs post-adaptation performance
+2. Improvement factor over training iterations
 
-### Speed of Code
-One current limitation of the code is that it is particularly slow. We welcome contributions to speed it up. We expect the biggest speed improvements to come from better parallelization of sampling and meta-learning graph computation.
+## Setup Instructions (Ubuntu 22.04)
 
+### Using Conda Environment File
 
-### Contact
-To ask questions or report issues, please open an issue on the [issues tracker](https://github.com/cbfinn/maml/issues).
+The easiest way to set up the environment is using the provided environment.yml file:
 
-# rllab
+```bash
+# Create the conda environment from the file
+conda env create -f environment.yml
 
+# Activate the environment
+conda activate maml_rl_fixed
+```
 
-[![Docs](https://readthedocs.org/projects/rllab/badge)](http://rllab.readthedocs.org/en/latest/)
-[![Circle CI](https://circleci.com/gh/rllab/rllab.svg?style=shield)](https://circleci.com/gh/rllab/rllab)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/rllab/rllab/blob/master/LICENSE)
-[![Join the chat at https://gitter.im/rllab/rllab](https://badges.gitter.im/rllab/rllab.svg)](https://gitter.im/rllab/rllab?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+### Manual Setup (Alternative)
 
+If you prefer to set up the environment manually:
 
-rllab is a framework for developing and evaluating reinforcement learning algorithms. It includes a wide range of continuous control tasks plus implementations of the following algorithms:
+1. **Create a conda environment with Python 3.5**:
+```bash
+conda create -n maml_rl python=3.5
+conda activate maml_rl
+```
 
+2. **Install TensorFlow 1.4.0** (critical for compatibility):
+```bash
+pip install tensorflow==1.4.0
+```
 
-- [REINFORCE](https://github.com/rllab/rllab/blob/master/rllab/algos/vpg.py)
-- [Truncated Natural Policy Gradient](https://github.com/rllab/rllab/blob/master/rllab/algos/tnpg.py)
-- [Reward-Weighted Regression](https://github.com/rllab/rllab/blob/master/rllab/algos/erwr.py)
-- [Relative Entropy Policy Search](https://github.com/rllab/rllab/blob/master/rllab/algos/reps.py)
-- [Trust Region Policy Optimization](https://github.com/rllab/rllab/blob/master/rllab/algos/trpo.py)
-- [Cross Entropy Method](https://github.com/rllab/rllab/blob/master/rllab/algos/cem.py)
-- [Covariance Matrix Adaption Evolution Strategy](https://github.com/rllab/rllab/blob/master/rllab/algos/cma_es.py)
-- [Deep Deterministic Policy Gradient](https://github.com/rllab/rllab/blob/master/rllab/algos/ddpg.py)
+3. **Install other dependencies**:
+```bash
+pip install numpy scipy matplotlib gym mujoco-py
+pip install joblib==0.9.4 python-dateutil pandas
+pip install path.py mako flask h5py scikit-learn
+```
 
-rllab is fully compatible with [OpenAI Gym](https://gym.openai.com/). See [here](http://rllab.readthedocs.io/en/latest/user/gym_integration.html) for instructions and examples.
+## Running the Experiment
 
-rllab only officially supports Python 3.5+. For an older snapshot of rllab sitting on Python 2, please use the [py2 branch](https://github.com/rllab/rllab/tree/py2).
+1. **Clone the repository**:
+```bash
+git clone https://github.com/[your-username]/maml_rl.git
+cd maml_rl
+```
 
-rllab comes with support for running reinforcement learning experiments on an EC2 cluster, and tools for visualizing the results. See the [documentation](https://rllab.readthedocs.io/en/latest/user/cluster.html) for details.
+2. **Run the point navigation experiment**:
+```bash
+cd maml_examples
+python maml_trpo_point.py
+```
 
-The main modules use [Theano](http://deeplearning.net/software/theano/) as the underlying framework, and we have support for TensorFlow under [sandbox/rocky/tf](https://github.com/openai/rllab/tree/master/sandbox/rocky/tf).
+3. **Visualize the results**:
+```bash
+cd ..  # Return to main directory
+python plot_maml_results.py
+```
 
-# Documentation
+## Notes for Reproducibility
 
-Documentation is available online: [https://rllab.readthedocs.org/en/latest/](https://rllab.readthedocs.org/en/latest/).
+- This codebase requires TensorFlow 1.4.0 specifically. Using newer versions will result in errors.
+- Python 3.5 is required for compatibility with the dependencies.
+- The code may produce warnings about deprecated NumPy functions which can be safely ignored.
+- Training takes approximately 10-20 minutes depending on your hardware.
 
-# Citing rllab
+## Minimal Working Implementation
 
-If you use rllab for academic research, you are highly encouraged to cite the following paper:
+The core MAML implementation for reinforcement learning is contained in:
+- `sandbox/rocky/tf/algos/maml_trpo.py`: Implementation of MAML with TRPO
+- `maml_examples/point_env_randgoal.py`: The 2D point navigation environment
+- `maml_examples/maml_trpo_point.py`: Script to run the point navigation experiment
+- `plot_maml_results.py`: Script to visualize training results
 
-- Yan Duan, Xi Chen, Rein Houthooft, John Schulman, Pieter Abbeel. "[Benchmarking Deep Reinforcement Learning for Continuous Control](http://arxiv.org/abs/1604.06778)". _Proceedings of the 33rd International Conference on Machine Learning (ICML), 2016._
-
-# Credits
-
-rllab was originally developed by Rocky Duan (UC Berkeley / OpenAI), Peter Chen (UC Berkeley), Rein Houthooft (UC Berkeley / OpenAI), John Schulman (UC Berkeley / OpenAI), and Pieter Abbeel (UC Berkeley / OpenAI). The library is continued to be jointly developed by people at OpenAI and UC Berkeley.
-
-# Slides
-
-Slides presented at ICML 2016: https://www.dropbox.com/s/rqtpp1jv2jtzxeg/ICML2016_benchmarking_slides.pdf?dl=0
+This implementation demonstrates the essential components of MAML:
+1. Meta-learning across a distribution of tasks
+2. Fast adaptation with a few gradient steps
+3. Comparison between pre-adaptation and post-adaptation performance
+```
